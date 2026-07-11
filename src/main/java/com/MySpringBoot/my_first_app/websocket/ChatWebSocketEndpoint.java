@@ -249,7 +249,7 @@ public class ChatWebSocketEndpoint {
                 receiverSession.getBasicRemote().sendText(json);
                 return true;
             } catch (IOException e) {
-                log.warn('[Pub/Sub] 转发消息给用户 {} 失败', userId, e);
+                log.warn("[Pub/Sub] 转发消息给用户 {} 失败", userId, e);
                 localOnlineUsers.remove(userId);
             }
         }
