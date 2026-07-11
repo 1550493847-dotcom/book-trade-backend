@@ -1,4 +1,4 @@
-package com.MySpringBoot.my_first_app.controler;
+﻿package com.MySpringBoot.my_first_app.controler;
 
 import com.MySpringBoot.my_first_app.dto.LoginRequest;
 import com.MySpringBoot.my_first_app.dto.LoginResponse;
@@ -25,11 +25,7 @@ public class UserController {
 
     private Integer getUserIdFromRequest(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            return jwtUtil.getUserIdFromToken(token);
-        }
-        return null;
+        return jwtUtil.getUserIdFromToken(jwtUtil.extractToken(token));
     }
 
     private String getClientIp(HttpServletRequest request) {
@@ -87,6 +83,18 @@ public class UserController {
             response.put("code", 400);
             response.put("message", "用户名已存在");
         }
+        return response;
+    }
+
+    @PostMapping("/logout")
+    public Map<String, Object> logout(HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String token = jwtUtil.extractToken(request.getHeader("Authorization"));
+        if (token != null) {
+            jwtUtil.blacklistToken(token);
+        }
+        response.put("code", 200);
+        response.put("message", "退出成功");
         return response;
     }
 

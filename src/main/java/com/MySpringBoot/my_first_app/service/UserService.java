@@ -1,7 +1,8 @@
-package com.MySpringBoot.my_first_app.service;
+﻿package com.MySpringBoot.my_first_app.service;
 
 import com.MySpringBoot.my_first_app.entity.User;
 import com.MySpringBoot.my_first_app.mapper.UserMapper;
+import com.MySpringBoot.my_first_app.websocket.ChatWebSocketEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,11 @@ public class UserService {
     }
 
     public boolean updateHeartbeat(Integer id) {
+        // 同时刷新 Redis 在线状态
+        try {
+            ChatWebSocketEndpoint.refreshUserOnlineStatus(id);
+        } catch (Exception ignored) {
+        }
         return userMapper.updateHeartbeat(id) > 0;
     }
 }

@@ -1,0 +1,33 @@
+﻿# ============================================
+# .dockerignore - 排除不需要进入 Docker 镜像的文件
+# ============================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+target/
+*.class
+*.jar
+!target/*.jar
+
+# Docker
+docker-compose.yml
+.dockerignore
+.env*
+*.md
+
+# Node / Frontend (if any)
+node_modules/

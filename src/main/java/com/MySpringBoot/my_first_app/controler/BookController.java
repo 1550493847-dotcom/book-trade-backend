@@ -1,4 +1,4 @@
-package com.MySpringBoot.my_first_app.controler;
+﻿package com.MySpringBoot.my_first_app.controler;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import com.MySpringBoot.my_first_app.entity.User;
@@ -81,9 +81,11 @@ public class BookController {
         Map<String, Object> response = new HashMap<>();
         Book book = bookService.getBookById(id);
         if (book != null) {
-            // 浏览量+1
+            // 使用 Redis 计数
             bookService.incrementViewCount(id);
-            book.setViewCount(book.getViewCount() + 1);
+            int viewCount = bookService.getViewCount(id);
+            book.setViewCount(viewCount);
+
             Map<String, Object> data = new HashMap<>();
             data.put("id", book.getId());
             data.put("userId", book.getUserId());

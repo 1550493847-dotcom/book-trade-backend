@@ -1,4 +1,4 @@
-package com.MySpringBoot.my_first_app.mapper;
+﻿package com.MySpringBoot.my_first_app.mapper;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import org.apache.ibatis.annotations.*;
@@ -40,6 +40,9 @@ public interface BookMapper {
 
     @Update("UPDATE books SET view_count = view_count + 1 WHERE id = #{id}")
     int incrementViewCount(Integer id);
+
+    @Update("UPDATE books SET view_count = #{viewCount} WHERE id = #{id}")
+    int updateViewCountById(@Param("id") Integer id, @Param("viewCount") Integer viewCount);
 
     @Select("SELECT COUNT(*) FROM books WHERE user_id = #{userId} AND status = 1")
     int countSoldByUserId(Integer userId);
