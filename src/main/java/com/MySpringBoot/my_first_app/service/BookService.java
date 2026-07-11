@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.service;
+package com.MySpringBoot.my_first_app.service;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import com.MySpringBoot.my_first_app.mapper.BookMapper;
@@ -46,12 +46,6 @@ public class BookService {
 
     @SuppressWarnings("unchecked")
     public List<Book> getAllBooks() {
-
-    // ==================== 搜索图书（关键词 + 分类 + 排序） ====================
-
-    public List<Book> searchBooks(String keyword, String category, String sortBy) {
-        return bookMapper.searchBooks(keyword, category, sortBy);
-    }
         // 尝试从缓存获取
         if (redisTemplate != null) {
             Object cached = redisTemplate.opsForValue().get(CACHE_KEY_ALL_BOOKS);
@@ -70,6 +64,14 @@ public class BookService {
     }
 
     // ==================== 图书详情（缓存） ====================
+
+
+
+    // ==================== 搜索图书（关键词 + 分类 + 排序） ====================
+
+    public List<Book> searchBooks(String keyword, String category, String sortBy) {
+        return bookMapper.searchBooks(keyword, category, sortBy);
+    }
 
     public Book getBookById(Integer id) {
         String cacheKey = CACHE_KEY_BOOK_DETAIL + id;

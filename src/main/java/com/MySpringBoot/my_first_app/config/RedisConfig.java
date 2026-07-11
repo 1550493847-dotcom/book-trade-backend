@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.config;
+package com.MySpringBoot.my_first_app.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

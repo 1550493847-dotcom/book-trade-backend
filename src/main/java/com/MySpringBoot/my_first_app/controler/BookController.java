@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.controler;
+package com.MySpringBoot.my_first_app.controler;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import com.MySpringBoot.my_first_app.entity.User;
@@ -68,9 +68,17 @@ public class BookController {
     }
 
     @GetMapping("/list")
-    public Map<String, Object> list() {
+    public Map<String, Object> list(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String sortBy) {
         Map<String, Object> response = new HashMap<>();
-        List<Book> books = bookService.getAllBooks();
+        List<Book> books;
+        if (keyword != null || category != null || sortBy != null) {
+            books = bookService.searchBooks(keyword, category, sortBy);
+        } else {
+            books = bookService.getAllBooks();
+        }
         response.put("code", 200);
         response.put("data", books);
         return response;
@@ -225,4 +233,3 @@ public class BookController {
         return response;
     }
 }
-

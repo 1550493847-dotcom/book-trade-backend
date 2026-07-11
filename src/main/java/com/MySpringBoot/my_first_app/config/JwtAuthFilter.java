@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.config;
+package com.MySpringBoot.my_first_app.config;
 
 import com.MySpringBoot.my_first_app.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;

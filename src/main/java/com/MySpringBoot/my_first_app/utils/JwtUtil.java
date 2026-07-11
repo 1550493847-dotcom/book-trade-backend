@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.utils;
+package com.MySpringBoot.my_first_app.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.config;
+package com.MySpringBoot.my_first_app.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

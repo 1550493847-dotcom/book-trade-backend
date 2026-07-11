@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.utils;
+package com.MySpringBoot.my_first_app.utils;
 
 /**
  * 输入安全过滤工具类 — 防止 XSS 和注入攻击

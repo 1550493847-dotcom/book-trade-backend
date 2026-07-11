@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.service;
+package com.MySpringBoot.my_first_app.service;
 
 import com.MySpringBoot.my_first_app.entity.User;
 import com.MySpringBoot.my_first_app.mapper.UserMapper;

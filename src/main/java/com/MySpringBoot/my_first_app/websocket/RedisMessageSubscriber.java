@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.websocket;
+package com.MySpringBoot.my_first_app.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

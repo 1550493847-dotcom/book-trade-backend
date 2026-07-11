@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.controler;
+package com.MySpringBoot.my_first_app.controler;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;

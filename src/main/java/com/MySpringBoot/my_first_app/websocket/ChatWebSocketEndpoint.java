@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.websocket;
+package com.MySpringBoot.my_first_app.websocket;
 
 import com.MySpringBoot.my_first_app.config.SpringContextUtil;
 import com.MySpringBoot.my_first_app.entity.ChatMessage;

@@ -1,4 +1,4 @@
-﻿package com.MySpringBoot.my_first_app.mapper;
+package com.MySpringBoot.my_first_app.mapper;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import org.apache.ibatis.annotations.*;
@@ -33,17 +33,6 @@ public interface BookMapper {
             + "</script>")
     List<Book> searchBooks(@Param("keyword") String keyword, @Param("category") String category, @Param("sortBy") String sortBy);
 
-    @Select("<script>"
-            + "SELECT * FROM books WHERE status = 0 "
-            + " ORDER BY "
-            + "<choose>"
-            + "<when test='sortBy == \"price_asc\"'>sell_price ASC</when>"
-            + "<when test='sortBy == \"price_desc\"'>sell_price DESC</when>"
-            + "<when test='sortBy == \"newest\"'>create_time DESC</when>"
-            + "<otherwise>create_time DESC</otherwise>"
-            + "</choose>"
-            + "</script>")
-    List<Book> searchBooks(@Param("keyword") String keyword, @Param("category") String category, @Param("sortBy") String sortBy);
 
     @Select("SELECT * FROM books WHERE id = #{id}")
     Book findById(Integer id);
@@ -77,4 +66,3 @@ public interface BookMapper {
     @Delete("DELETE FROM books WHERE id = #{id}")
     int deleteById(Integer id);
 }
-
