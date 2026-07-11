@@ -46,6 +46,12 @@ public class BookService {
 
     @SuppressWarnings("unchecked")
     public List<Book> getAllBooks() {
+
+    // ==================== 搜索图书（关键词 + 分类 + 排序） ====================
+
+    public List<Book> searchBooks(String keyword, String category, String sortBy) {
+        return bookMapper.searchBooks(keyword, category, sortBy);
+    }
         // 尝试从缓存获取
         if (redisTemplate != null) {
             Object cached = redisTemplate.opsForValue().get(CACHE_KEY_ALL_BOOKS);
