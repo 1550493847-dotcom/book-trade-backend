@@ -80,3 +80,43 @@ public class UploadController {
     }
 }
 
+
+    @DeleteMapping("/api/upload")
+    public Map<String, Object> deleteImage(@RequestParam("path") String imagePath) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 从路径提取文件名，如 /img/xxx.png → /img/xxx.png
+            if (imagePath == null || imagePath.trim().isEmpty()) {
+                response.put("code", 400);
+                response.put("message", "图片路径不能为空");
+                return response;
+            }
+            // 安全校验：只允许删除 uploadPath 下的文件
+            File file = new File(uploadPath + File.separator + imagePath.replace("/img/", "img" + File.separator));
+            if (!file.exists()) {
+                response.put("code", 404);
+                response.put("message", "图片不存在");
+                return response;
+            }
+            // 确保文件在 uploadPath 目录内（防止路径穿越）
+            String canonicalPath = file.getCanonicalPath();
+            String uploadCanonical = new File(uploadPath).getCanonicalPath();
+            if (!canonicalPath.startsWith(uploadCanonical)) {
+                response.put("code", 403);
+                response.put("message", "不允许删除此文件");
+                return response;
+            }
+            if (file.delete()) {
+                response.put("code", 200);
+                response.put("message", "删除成功");
+            } else {
+                response.put("code", 500);
+                response.put("message", "删除失败");
+            }
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "删除失败：" + e.getMessage());
+        }
+        return response;
+
+}
