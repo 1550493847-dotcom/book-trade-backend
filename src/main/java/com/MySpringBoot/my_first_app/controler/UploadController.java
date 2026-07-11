@@ -1,52 +1,77 @@
-package com.MySpringBoot.my_first_app.controller;
+﻿package com.MySpringBoot.my_first_app.controler;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
 public class UploadController {
 
-    @Value("${file.upload.path:D:/MySpringBoot/my-first-app/src/main/resources/static/img/}")
+    // 允许上传的图片格式
+    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
+        ".jpg", ".jpeg", ".png", ".gif", ".webp"
+    );
+    // 最大文件大小：5MB
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+    @Value("${file.upload.path:/var/lib/uploads}")
     private String uploadPath;
 
     @PostMapping("/api/upload")
     public Map<String, Object> upload(@RequestParam("file") MultipartFile file) {
         Map<String, Object> response = new HashMap<>();
 
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            response.put("code", 400);
+            response.put("message", "请选择要上传的文件");
+            return response;
+        }
+
+        // 检查文件大小
+        if (file.getSize() > MAX_FILE_SIZE) {
+            response.put("code", 400);
+            response.put("message", "文件大小不能超过 5MB");
+            return response;
+        }
+
+        // 检查文件扩展名
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            response.put("code", 400);
+            response.put("message", "不支持的文件格式");
+            return response;
+        }
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            response.put("code", 400);
+            response.put("message", "仅支持 JPG/PNG/GIF/WebP 格式的图片");
+            return response;
+        }
+
         try {
-            // 创建目录（如果不存在）
             File dir = new File(uploadPath);
             if (!dir.exists()) {
-                boolean created = dir.mkdirs();
-                System.out.println("创建目录: " + uploadPath + " 成功: " + created);
+                dir.mkdirs();
             }
 
-            // 生成唯一文件名
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFileName = UUID.randomUUID().toString() + extension;
-
-            // 保存文件到磁盘
-            File destFile = new File(uploadPath + newFileName);
+            File destFile = new File(uploadPath + File.separator + newFileName);
             file.transferTo(destFile);
 
-            System.out.println("文件保存成功: " + destFile.getAbsolutePath());
-
-            // 返回浏览器访问的 URL（相对路径）
             String imageUrl = "/img/" + newFileName;
-
             response.put("code", 200);
             response.put("message", "上传成功");
             response.put("data", imageUrl);
 
         } catch (IOException e) {
-            e.printStackTrace();
             response.put("code", 500);
             response.put("message", "上传失败：" + e.getMessage());
         }

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "your-secret-key-please-change-this";
+    private static final String SECRET = System.getenv().getOrDefault("JWT_SECRET", "change-me-in-production");
     private static final long EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000; // 7天
 
     @Autowired(required = false)

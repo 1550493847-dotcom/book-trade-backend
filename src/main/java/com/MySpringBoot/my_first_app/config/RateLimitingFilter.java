@@ -12,13 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 限流过滤器 — 基于 Redis 的滑动窗口算法
- * 每 IP 每分钟最多 120 次请求
+ * 普通接口: 每 IP 每分钟最多 120 次
+ * 登录接口: 每 IP 每分钟最多 10 次
  */
 @Component
 public class RateLimitingFilter implements Filter {
 
     private static final String RATE_LIMIT_PREFIX = "ratelimit:";
     private static final int MAX_REQUESTS_PER_MINUTE = 120;
+    private static final int MAX_LOGIN_PER_MINUTE = 10;
     private static final long WINDOW_SECONDS = 60;
 
     @Autowired(required = false)
@@ -30,7 +32,6 @@ public class RateLimitingFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        // 只对 /api/ 进行限流
         String path = request.getRequestURI();
         if (!path.startsWith("/api/")) {
             chain.doFilter(request, response);
@@ -39,16 +40,22 @@ public class RateLimitingFilter implements Filter {
 
         if (redisTemplate != null) {
             String ip = getClientIp(request);
-            String key = RATE_LIMIT_PREFIX + ip + ":" + path;
+            // 登录接口更严格的限流
+            boolean isLogin = path.equals("/api/user/login");
+            int maxRequests = isLogin ? MAX_LOGIN_PER_MINUTE : MAX_REQUESTS_PER_MINUTE;
+
+            String key = RATE_LIMIT_PREFIX + ip + ":" + (isLogin ? "login" : path);
             Long count = redisTemplate.opsForValue().increment(key);
             if (count == 1) {
-                // 第一次访问，设置过期时间
                 redisTemplate.expire(key, WINDOW_SECONDS, TimeUnit.SECONDS);
             }
-            if (count != null && count > MAX_REQUESTS_PER_MINUTE) {
+            if (count != null && count > maxRequests) {
+                String msg = isLogin
+                    ? "{\"code\":429,\"message\":\"登录尝试过于频繁，请 1 分钟后再试\"}"
+                    : "{\"code\":429,\"message\":\"请求过于频繁，请稍后再试\"}";
                 response.setContentType("application/json;charset=UTF-8");
                 response.setStatus(429);
-                response.getWriter().write("{\"code\":429,\"message\":\"请求过于频繁，请稍后再试\"}");
+                response.getWriter().write(msg);
                 return;
             }
         }
