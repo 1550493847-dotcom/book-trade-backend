@@ -57,12 +57,12 @@ public class UploadController {
         }
 
         try {
-            File dir = new File(uploadPath);
+            File dir = new File(uploadPath + File.separator + "img");
             if (!dir.exists()) {
                 dir.mkdirs();
             }
 
-            String newFileName = UUID.randomUUID().toString() + extension;
+            String newFileName = "img" + File.separator + UUID.randomUUID().toString() + extension;
             File destFile = new File(uploadPath + File.separator + newFileName);
             file.transferTo(destFile);
 
@@ -79,3 +79,4 @@ public class UploadController {
         return response;
     }
 }
+
