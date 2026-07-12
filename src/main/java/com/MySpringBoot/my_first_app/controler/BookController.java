@@ -136,6 +136,15 @@ public class BookController {
         return response;
     }
 
+    @GetMapping("/user/{userId}")
+    public Map<String, Object> getBooksByUser(@PathVariable Integer userId) {
+        Map<String, Object> response = new HashMap<>();
+        List<Book> books = bookService.getMyBooks(userId);
+        response.put("code", 200);
+        response.put("data", books);
+        return response;
+    }
+
     @GetMapping("/my")
     public Map<String, Object> getMyBooks(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();

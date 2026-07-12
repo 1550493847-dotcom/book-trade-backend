@@ -186,3 +186,29 @@ mysql -u root -p book_trade < /root/book-trade-backend/init.sql
 - **XSS 防护**：`SecurityUtils.sanitize()`
 - **文件上传校验**：仅允许 JPG/PNG/GIF/WebP，最大 5MB
 - **CORS**：从环境变量读取允许的来源列表
+
+## 图片存储
+
+| 环境 | 路径 |
+|------|------|
+| Docker 容器内 | `/var/lib/uploads/img/` |
+| 服务器宿主机 | `/root/book-trade-backend/uploads/img/` |
+| 本地 Windows | `C:\var\lib\uploads\img\`（默认，可改） |
+| 访问 URL | `http://121.199.31.208/img/xxx.png` |
+
+**配置方式：** 环境变量 `FILE_UPLOAD_PATH` 控制路径
+
+**Nginx 优化（服务器上已配置）：** 图片由 Nginx 直接 serving，不经过 Java 后端
+```
+location /img/ {
+    alias /var/lib/uploads/img/;
+    expires 30d;
+    access_log off;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+**UploadController URL 生成规则：**
+- 文件存到 `{uploadPath}/img/{uuid}.{ext}`
+- 返回 URL: `/img/{uuid}.{ext}`
+- 前端拼接完整地址：`{VITE_API_BASE_URL}/img/{uuid}.{ext}`

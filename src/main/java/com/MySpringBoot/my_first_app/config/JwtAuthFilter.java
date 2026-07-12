@@ -40,8 +40,8 @@ public class JwtAuthFilter implements Filter {
 
         // GET 请求的公开接口放行（图书列表、详情、用户信息）
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            if (path.equals("/api/book/list") || path.matches("/api/book/\\d+")
-                    || path.matches("/api/user/\\d+") || path.equals("/api/favorite/check/\\d+")) {
+            if (path.equals("/api/book/list") || path.matches("/api/book/\\d+") || path.matches("/api/book/user/\\d+")
+                    || path.startsWith("/api/search/") || path.matches("/api/user/\\d+") || path.equals("/api/favorite/check/\\d+")) {
                 chain.doFilter(request, response);
                 return;
             }

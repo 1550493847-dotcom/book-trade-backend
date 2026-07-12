@@ -2,16 +2,17 @@ package com.MySpringBoot.my_first_app.controler;
 
 import com.MySpringBoot.my_first_app.entity.Book;
 import com.MySpringBoot.my_first_app.entity.Order;
+import com.MySpringBoot.my_first_app.entity.User;
 import com.MySpringBoot.my_first_app.service.BookService;
 import com.MySpringBoot.my_first_app.service.OrderService;
+import com.MySpringBoot.my_first_app.service.UserService;
 import com.MySpringBoot.my_first_app.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/order")
@@ -24,6 +25,9 @@ public class OrderController {
     private BookService bookService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     private Integer getUserIdFromRequest(HttpServletRequest request) {
@@ -33,6 +37,57 @@ public class OrderController {
             return jwtUtil.getUserIdFromToken(token);
         }
         return null;
+    }
+
+    /** 为订单列表填充书籍 + 用户信息 */
+    private List<Map<String, Object>> enrichOrders(List<Order> orders) {
+        return orders.stream().map(order -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", order.getId());
+            item.put("orderNo", order.getOrderNo());
+            item.put("buyerId", order.getBuyerId());
+            item.put("sellerId", order.getSellerId());
+            item.put("bookId", order.getBookId());
+            item.put("totalPrice", order.getTotalPrice());
+            item.put("status", order.getStatus());
+            item.put("createTime", order.getCreateTime());
+            item.put("payTime", order.getPayTime());
+            item.put("shipTime", order.getShipTime());
+            item.put("confirmTime", order.getConfirmTime());
+
+            // 填充书籍信息
+            Book book = bookService.getBookById(order.getBookId());
+            if (book != null) {
+                item.put("bookTitle", book.getTitle());
+                item.put("bookImage", book.getImages());
+                item.put("bookAuthor", book.getAuthor());
+                item.put("bookDescription", book.getDescription());
+            }
+
+            // 填充卖家信息
+            User seller = userService.getUserById(order.getSellerId());
+            if (seller != null) {
+                Map<String, Object> sellerInfo = new HashMap<>();
+                sellerInfo.put("id", seller.getId());
+                sellerInfo.put("username", seller.getUsername());
+                sellerInfo.put("nickname", seller.getNickname());
+                sellerInfo.put("avatar", seller.getAvatar());
+                item.put("seller", sellerInfo);
+            }
+
+            // 填充买家信息
+            User buyer = userService.getUserById(order.getBuyerId());
+            if (buyer != null) {
+                Map<String, Object> buyerInfo = new HashMap<>();
+                buyerInfo.put("id", buyer.getId());
+                buyerInfo.put("username", buyer.getUsername());
+                buyerInfo.put("nickname", buyer.getNickname());
+                buyerInfo.put("avatar", buyer.getAvatar());
+                item.put("buyer", buyerInfo);
+            }
+
+            return item;
+        }).collect(Collectors.toList());
     }
 
     @PostMapping("/create")
@@ -80,7 +135,7 @@ public class OrderController {
         }
         List<Order> orders = orderService.getMyBuyOrders(buyerId);
         response.put("code", 200);
-        response.put("data", orders);
+        response.put("data", enrichOrders(orders));
         return response;
     }
 
@@ -95,7 +150,7 @@ public class OrderController {
         }
         List<Order> orders = orderService.getMySellOrders(sellerId);
         response.put("code", 200);
-        response.put("data", orders);
+        response.put("data", enrichOrders(orders));
         return response;
     }
 
@@ -115,7 +170,7 @@ public class OrderController {
             return response;
         }
         response.put("code", 200);
-        response.put("data", order);
+        response.put("data", enrichOrders(Collections.singletonList(order)).get(0));
         return response;
     }
 
@@ -158,7 +213,6 @@ public class OrderController {
         }
         boolean ok = orderService.confirm(id);
         if (ok) {
-            // 确认收货后将该商品标记为已售出
             Order order = orderService.getOrderById(id);
             if (order != null) {
                 bookService.sellBook(order.getBookId());
@@ -192,7 +246,6 @@ public class OrderController {
             response.put("message", "请先登录");
             return response;
         }
-        // 简单处理：订单状态改为4（已评价）
         orderService.confirm(id);
         response.put("code", 200);
         response.put("message", "评价成功");

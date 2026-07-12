@@ -1,4 +1,4 @@
-package com.MySpringBoot.my_first_app.mapper;
+﻿package com.MySpringBoot.my_first_app.mapper;
 
 import com.MySpringBoot.my_first_app.entity.Order;
 import org.apache.ibatis.annotations.*;
@@ -40,3 +40,4 @@ public interface OrderMapper {
     @Select("SELECT COUNT(*) FROM orders WHERE seller_id = #{sellerId} AND status = 3")
     int countSoldBySellerId(Integer sellerId);
 }
+

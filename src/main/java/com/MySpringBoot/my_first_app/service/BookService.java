@@ -48,17 +48,25 @@ public class BookService {
     public List<Book> getAllBooks() {
         // 尝试从缓存获取
         if (redisTemplate != null) {
-            Object cached = redisTemplate.opsForValue().get(CACHE_KEY_ALL_BOOKS);
-            if (cached instanceof List) {
-                return (List<Book>) cached;
+            try {
+                Object cached = redisTemplate.opsForValue().get(CACHE_KEY_ALL_BOOKS);
+                if (cached instanceof List) {
+                    return (List<Book>) cached;
+                }
+            } catch (Exception e) {
+                // Redis 不可用时从数据库查询
             }
         }
         // 缓存未命中，从数据库查询
         List<Book> books = bookMapper.findAll();
         // 写入缓存
         if (redisTemplate != null && books != null) {
-            redisTemplate.opsForValue().set(
-                    CACHE_KEY_ALL_BOOKS, books, TTL_ALL_BOOKS, TimeUnit.MINUTES);
+            try {
+                redisTemplate.opsForValue().set(
+                        CACHE_KEY_ALL_BOOKS, books, TTL_ALL_BOOKS, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                // Redis 不可用时忽略缓存写入
+            }
         }
         return books;
     }
@@ -77,17 +85,25 @@ public class BookService {
         String cacheKey = CACHE_KEY_BOOK_DETAIL + id;
         // 尝试从缓存获取
         if (redisTemplate != null) {
-            Object cached = redisTemplate.opsForValue().get(cacheKey);
-            if (cached instanceof Book) {
-                return (Book) cached;
+            try {
+                Object cached = redisTemplate.opsForValue().get(cacheKey);
+                if (cached instanceof Book) {
+                    return (Book) cached;
+                }
+            } catch (Exception e) {
+                // Redis 不可用时从数据库查询
             }
         }
         // 缓存未命中，从数据库查询
         Book book = bookMapper.findById(id);
         // 写入缓存
         if (redisTemplate != null && book != null) {
-            redisTemplate.opsForValue().set(
-                    cacheKey, book, TTL_BOOK_DETAIL, TimeUnit.MINUTES);
+            try {
+                redisTemplate.opsForValue().set(
+                        cacheKey, book, TTL_BOOK_DETAIL, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                // Redis 不可用时忽略缓存写入
+            }
         }
         return book;
     }

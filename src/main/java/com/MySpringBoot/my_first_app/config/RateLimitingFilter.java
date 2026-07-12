@@ -45,18 +45,22 @@ public class RateLimitingFilter implements Filter {
             int maxRequests = isLogin ? MAX_LOGIN_PER_MINUTE : MAX_REQUESTS_PER_MINUTE;
 
             String key = RATE_LIMIT_PREFIX + ip + ":" + (isLogin ? "login" : path);
-            Long count = redisTemplate.opsForValue().increment(key);
-            if (count == 1) {
-                redisTemplate.expire(key, WINDOW_SECONDS, TimeUnit.SECONDS);
-            }
-            if (count != null && count > maxRequests) {
-                String msg = isLogin
-                    ? "{\"code\":429,\"message\":\"登录尝试过于频繁，请 1 分钟后再试\"}"
-                    : "{\"code\":429,\"message\":\"请求过于频繁，请稍后再试\"}";
-                response.setContentType("application/json;charset=UTF-8");
-                response.setStatus(429);
-                response.getWriter().write(msg);
-                return;
+            try {
+                Long count = redisTemplate.opsForValue().increment(key);
+                if (count == 1) {
+                    redisTemplate.expire(key, WINDOW_SECONDS, TimeUnit.SECONDS);
+                }
+                if (count != null && count > maxRequests) {
+                    String msg = isLogin
+                        ? "{\"code\":429,\"message\":\"登录尝试过于频繁，请 1 分钟后再试\"}"
+                        : "{\"code\":429,\"message\":\"请求过于频繁，请稍后再试\"}";
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(429);
+                    response.getWriter().write(msg);
+                    return;
+                }
+            } catch (Exception e) {
+                // Redis 不可用时降级，不限制请求
             }
         }
 
